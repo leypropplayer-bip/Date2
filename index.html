@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pour toi, Dina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f6f1e9;
+    --card:#fffdfa;
+    --ink:#3a2e2c;
+    --ink-soft:#8a7a72;
+    --wine:#7a2438;
+    --wine-dark:#5e1c2b;
+    --line:#e7ddd0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:var(--cream);
+    background-image: radial-gradient(circle at 20% 10%, rgba(122,36,56,0.04), transparent 40%),
+                       radial-gradient(circle at 85% 90%, rgba(122,36,56,0.05), transparent 45%);
+    font-family:'EB Garamond', serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+  .stage{ width:100%; max-width:440px; }
+  .screen{ display:none; animation:rise .55s cubic-bezier(.2,.8,.2,1); }
+  .screen.active{ display:block; }
+  @keyframes rise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:44px 32px;
+    text-align:center;
+    box-shadow:0 30px 60px -30px rgba(58,46,44,0.25);
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    font-family:'EB Garamond', serif;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:30px;
+    line-height:1.25;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  .sub{
+    font-size:15.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0 0 26px;
+  }
+  .hint{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin:16px 0 0;
+    min-height:18px;
+  }
+
+  /* envelope screen */
+  .envelope-wrap{ display:flex; flex-direction:column; align-items:center; gap:18px; cursor:pointer; }
+  .envelope{
+    width:150px; height:104px;
+    background:linear-gradient(180deg,#fdf9f3,#f1e6d8);
+    border:1px solid var(--line);
+    border-radius:6px;
+    position:relative;
+    box-shadow:0 18px 34px -18px rgba(58,46,44,0.35);
+  }
+  .envelope::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(135deg, transparent 49.3%, var(--line) 49.6%, var(--line) 50.4%, transparent 50.7%),
+      linear-gradient(45deg, transparent 49.3%, var(--line) 49.6%, var(--line) 50.4%, transparent 50.7%);
+  }
+  .heart-badge{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--wine);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    box-shadow:0 8px 18px -6px rgba(122,36,56,0.6);
+    transition:transform .25s ease;
+  }
+  .envelope-wrap:hover .heart-badge{ transform:translate(-50%,-50%) scale(1.08); }
+  .envelope-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+
+  /* buttons */
+  .btn-row{ display:flex; gap:12px; justify-content:center; margin-top:6px; }
+  .btn{
+    font-family:'EB Garamond', serif;
+    font-size:16px;
+    padding:11px 26px;
+    border-radius:10px;
+    border:1px solid var(--wine);
+    cursor:pointer;
+    background:transparent;
+    color:var(--wine);
+    transition:all .15s ease;
+  }
+  .btn:hover{ background:rgba(122,36,56,0.06); }
+  .btn.filled{
+    background:var(--wine);
+    color:#fff;
+  }
+  .btn.filled:hover{ background:var(--wine-dark); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+  /* choice screen */
+  .field-label{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:22px 0 10px;
+    text-align:left;
+  }
+  .pill-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .pill{
+    flex:1 1 auto;
+    font-family:'EB Garamond', serif;
+    font-size:15px;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .pill:hover{ border-color:var(--wine); }
+  .pill.selected{
+    background:var(--wine);
+    border-color:var(--wine);
+    color:#fff;
+  }
+  .format-line{
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:2px 0 4px;
+  }
+  textarea{
+    width:100%;
+    font-family:'EB Garamond', serif;
+    font-size:15px;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    resize:none;
+    min-height:64px;
+    color:var(--ink);
+    background:#fff;
+  }
+  textarea:focus, .pill:focus, .btn:focus{ outline:2px solid var(--wine); outline-offset:2px; }
+  .confirm-btn{
+    width:100%;
+    margin-top:26px;
+    padding:13px;
+    border-radius:10px;
+    border:none;
+    background:var(--wine);
+    color:#fff;
+    font-family:'EB Garamond', serif;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .confirm-btn:hover{ background:var(--wine-dark); }
+
+  /* final screen */
+  .heart-circle{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--wine);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    margin:0 auto 16px;
+  }
+  .final-date{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:25px;
+    margin:0 0 8px;
+  }
+  .final-sub{ font-size:15px; color:var(--ink-soft); margin:0 0 18px; }
+  .final-note{
+    font-size:14px;
+    color:var(--ink);
+    font-style:italic;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    margin-top:4px;
+  }
+  .final-tag{ font-style:italic; color:var(--ink-soft); margin-top:18px; font-size:15px; }
+
+  /* admin */
+  .admin{ text-align:left; }
+  .admin h2{ font-family:'Playfair Display', serif; font-style:italic; }
+  .entry{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px; background:#fff; }
+  .entry .when{ font-size:12px; color:var(--ink-soft); }
+  .empty{ color:var(--ink-soft); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- ADMIN VIEW -->
+  <div class="screen" id="screen-admin">
+    <div class="card admin">
+      <div class="eyebrow">Historique</div>
+      <h2>Réponses de Dina</h2>
+      <div id="admin-list"><p class="empty">Chargement…</p></div>
+    </div>
+  </div>
+
+  <!-- 1. ENVELOPE -->
+  <div class="screen active" id="screen-envelope">
+    <div class="card">
+      <div class="envelope-wrap" id="open-envelope">
+        <div class="envelope"><div class="heart-badge">♡</div></div>
+        <div class="envelope-label">Touche la lettre</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. LETTER / OUI-NON -->
+  <div class="screen" id="screen-letter">
+    <div class="card">
+      <div class="eyebrow">Pour toi, Dina</div>
+      <h1>Ça te dit un date avec moi ?</h1>
+      <div class="btn-row">
+        <button class="btn" id="btn-non">Non</button>
+        <button class="btn filled" id="btn-oui">Oui</button>
+      </div>
+      <p class="hint" id="non-hint">(dire non ne sert à rien, mais tu peux essayer)</p>
+    </div>
+  </div>
+
+  <!-- 3. CHOICE -->
+  <div class="screen" id="screen-choice">
+    <div class="card" style="text-align:left;">
+      <div class="eyebrow" style="text-align:center;">Parfait</div>
+      <h1 style="text-align:center;">On va voir</h1>
+      <p class="sub" style="text-align:center;">Pour me faire pardonner mon absence — un dîner rien que pour nous deux.</p>
+      <p class="format-line" style="text-align:center;">Samedi 22 août · VOST · Dolby Vision Andy</p>
+
+      <div class="field-label">Où</div>
+      <div class="pill-row">
+        <button class="pill" data-group="resto" data-value="La Lorraine">La Lorraine</button>
+        <button class="pill" data-group="resto" data-value="Aïoli">Aïoli</button>
+      </div>
+
+      <div class="field-label">Heure</div>
+      <div class="pill-row">
+        <button class="pill" data-group="heure" data-value="19:30 → 22:15">19:30 → 22:15</button>
+        <button class="pill" data-group="heure" data-value="22:45 → 01:30">22:45 → 01:30</button>
+      </div>
+
+      <div class="field-label">A note for me (optional)</div>
+      <textarea id="note" placeholder="Write anything you'd like..."></textarea>
+
+      <button class="confirm-btn" id="btn-confirm">Confirmer</button>
+    </div>
+  </div>
+
+  <!-- 4. CONFIRMATION -->
+  <div class="screen" id="screen-final">
+    <div class="card">
+      <div class="heart-circle">♡</div>
+      <div class="eyebrow">C'est noté</div>
+      <p class="final-date" id="final-date"></p>
+      <p class="final-sub" id="final-sub"></p>
+      <p class="final-note" id="final-note" style="display:none;"></p>
+      <p class="final-tag">J'ai déjà hâte.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const screens = {
+    admin: document.getElementById('screen-admin'),
+    envelope: document.getElementById('screen-envelope'),
+    letter: document.getElementById('screen-letter'),
+    choice: document.getElementById('screen-choice'),
+    final: document.getElementById('screen-final'),
+  };
+  function show(name){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  // ---- admin / history mode ----
+  const params = new URLSearchParams(location.search);
+  if (params.get('admin')) {
+    show('admin');
+    loadHistory();
+  }
+
+  async function loadHistory(){
+    const list = document.getElementById('admin-list');
+    try{
+      const listing = await window.storage.list('reponse:', true);
+      const keys = (listing && listing.keys) ? listing.keys : [];
+      if (keys.length === 0){
+        list.innerHTML = '<p class="empty">Aucune réponse pour le moment.</p>';
+        return;
+      }
+      const items = [];
+      for (const k of keys){
+        try{
+          const r = await window.storage.get(k, true);
+          if (r) items.push(JSON.parse(r.value));
+        }catch(e){ /* skip unreadable entry */ }
+      }
+      items.sort((a,b) => new Date(b.respondedAt) - new Date(a.respondedAt));
+      list.innerHTML = items.map(it => `
+        <div class="entry">
+          <div class="when">${new Date(it.respondedAt).toLocaleString('fr-FR')}</div>
+          <div><strong>${it.restaurant || '—'}</strong> · ${it.time || '—'}</div>
+          ${it.note ? `<div style="margin-top:6px; font-style:italic;">"${escapeHtml(it.note)}"</div>` : ''}
+        </div>
+      `).join('');
+    }catch(e){
+      list.innerHTML = '<p class="empty">Impossible de charger l\'historique pour le moment.</p>';
+    }
+  }
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---- envelope -> letter ----
+  document.getElementById('open-envelope').addEventListener('click', () => show('letter'));
+
+  // ---- non/oui ----
+  const nonMessages = [
+    "(dire non ne sert à rien, mais tu peux essayer)",
+    "T'es sûre ?",
+    "Vraiment vraiment ?",
+    "Tu réfléchis encore ?",
+    "Bon d'accord... mais on sait très bien comment ça va finir 😏",
+    "Allez, avoue que tu meurs d'envie de dire oui."
+  ];
+  let nonIndex = 0;
+  const nonHint = document.getElementById('non-hint');
+  document.getElementById('btn-non').addEventListener('click', () => {
+    nonIndex = Math.min(nonIndex + 1, nonMessages.length - 1);
+    nonHint.textContent = nonMessages[nonIndex];
+  });
+  document.getElementById('btn-oui').addEventListener('click', () => show('choice'));
+
+  // ---- choice screen selections ----
+  let selectedResto = null;
+  let selectedHeure = null;
+  document.querySelectorAll('.pill[data-group="resto"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pill[data-group="resto"]').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedResto = btn.dataset.value;
+    });
+  });
+  document.querySelectorAll('.pill[data-group="heure"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pill[data-group="heure"]').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedHeure = btn.dataset.value;
+    });
+  });
+
+  document.getElementById('btn-confirm').addEventListener('click', async () => {
+    if (!selectedResto || !selectedHeure){
+      alert("Choisis un restaurant et une heure avant de confirmer 🙂");
+      return;
+    }
+    const note = document.getElementById('note').value.trim();
+    const record = {
+      restaurant: selectedResto,
+      date: '2026-08-22',
+      time: selectedHeure,
+      note: note,
+      respondedAt: new Date().toISOString()
+    };
+    try{
+      await window.storage.set('reponse:' + Date.now(), JSON.stringify(record), true);
+    }catch(e){
+      // saving is best-effort; still show the confirmation to Dina
+      console.error('Storage error:', e);
+    }
+
+    document.getElementById('final-date').textContent = 'Samedi 22 août à ' + selectedHeure.split(' → ')[0];
+    document.getElementById('final-sub').textContent = selectedResto + ' · VOST · Dolby Vision Andy';
+    const noteEl = document.getElementById('final-note');
+    if (note){
+      noteEl.style.display = 'block';
+      noteEl.textContent = '"' + note + '"';
+    } else {
+      noteEl.style.display = 'none';
+    }
+    show('final');
+  });
+</script>
+</body>
+</html>
